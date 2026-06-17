@@ -1,0 +1,174 @@
+@startuml
+' ==================== LIGHT THEME CONFIGURATION ====================
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontColor #333333
+skinparam classFontColor #1A1A1A
+skinparam classAttributeFontColor #555555
+skinparam class {
+    BackgroundColor #F8F9FA
+    BorderColor #DEE2E6
+    HeaderBackgroundColor #E9ECEF
+    HeaderFontColor #0066CC
+    FontColor #1A1A1A
+}
+
+skinparam stereotype {
+    BackgroundColor #FFFFFF
+    BorderColor #ADB5BD
+    FontColor #0066CC
+}
+
+skinparam arrow {
+    Color #6C757D
+    FontColor #495057
+    Thickness 1
+}
+
+skinparam note {
+    BackgroundColor #FFF3CD
+    BorderColor #FFEEBA
+    FontColor #856404
+}
+
+title <color:#0066CC><size:18>AgroTech IoT - Database Diagram</size></color>
+
+
+entity User {
+    * user_id : String
+    --
+    * email : String
+    * password_hash : String
+}
+
+entity Profile {
+    * profile_id : String
+    --
+    * user_id : String <<FK>>
+    * fundo_name : String
+    * contact_phone : String
+    * moisture_threshold : Number
+    * temp_threshold : Number
+}
+
+entity Community_profile {
+    * community_profile_id : String
+    --
+    * profile_id : String <<FK>>
+    * nickname : String
+    * reputation_score : Number
+    * public_bio : String
+    * visibility_status : Boolean
+}
+
+entity Comment {
+    * comment_id : String
+    --
+    * author_profile_id : String <<FK>>
+    * target_profile_id : String <<FK>>
+    * content : String
+    * created_at : Date
+}
+
+entity Subscription {
+    * subscription_id : String
+    --
+    * profile_id : String <<FK>>
+    * product_id : String <<FK>>
+    * order_id : String <<FK>>
+    * start_date : Date
+    * end_date : Date
+    * status : String
+    * auto_renew : Boolean
+}
+
+entity Order {
+    * order_id : String
+    --
+    * profile_id : String <<FK>>
+    * product_id : String <<FK>>
+    * status : String
+    * total_amount : Number
+    * created_at : Date
+}
+
+entity Product {
+    * product_id : String
+    --
+    * name : String
+    * description : String
+    * price : Number
+    * type : String
+}
+
+entity Field {
+    * field_id : String
+    --
+    * profile_id : String <<FK>>
+    * name : String
+    * size_m2 : Number
+    * soil_type : String
+    * location_lat_long : String
+}
+
+entity Device {
+    * device_id : String
+    --
+    * field_id : String <<FK>>
+    * mac_address : String
+    * status : String
+    * last_sync : Date
+}
+
+entity Report {
+    * report_id : String
+    --
+    * device_id : String <<FK>>
+    * generated_at : Date
+    * mean_value : Number
+    * variance : Number
+    * standard_deviation : Number
+    * technical_interpretation : String
+}
+
+entity Inventory {
+    * inventory_id : String
+    --
+    * product_id : String <<FK>>
+    * stock_quantity : Number
+    * warehouse_location : String
+}
+
+entity Notification {
+    * notification_id : String
+    --
+    * profile_id : String <<FK>>
+    * title : String
+    * message : String
+    * is_alert : Boolean
+    * is_read : Boolean
+}
+
+' Relationships
+User ||--|| Profile
+
+' Operational Hub (Profile)
+Profile ||--|| Community_profile
+Profile ||--o{ Order
+Profile ||--o{ Subscription
+Profile ||--o{ Notification
+Profile ||--o{ Field
+
+' Social Interaction
+Community_profile ||--o{ Comment
+Community_profile ||--o{ Comment
+
+' Logic Connections
+Order }o--|| Product
+Subscription }o--|| Product
+Subscription ||--|| Order
+
+Field ||--o{ Device
+Device ||--o{ Report
+Product ||--|| Inventory
+
+@enduml
